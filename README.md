@@ -7,7 +7,7 @@ A web-based application for managing exhibition stall bookings and providing int
 - HTML
 - CSS
 - JavaScript
-- Python flask
+- Flask (Python)
 - SQLite
 
 ## ✨ Features
