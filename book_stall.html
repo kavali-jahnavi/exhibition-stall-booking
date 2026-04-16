@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Book a Stall - Fusion Fest 2026</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<h1>Fusion Fest 2026</h1>
+<p>Book Your Stall</p>
+
+<div class="book-box">
+<h2>Available Stalls</h2>
+
+{% if pending %}
+<div style="text-align:center;padding:30px 10px">
+  <div style="font-size:48px;margin-bottom:12px">⏳</div>
+  <h3 style="color:#92400e;margin-bottom:8px">Request Submitted</h3>
+  <p style="color:#78350f;font-size:14px;line-height:1.6">
+    Your booking request has been submitted and is awaiting admin approval.<br>
+    You will be able to access your stall dashboard once approved.
+  </p>
+  <a href="/" style="display:inline-block;margin-top:18px;padding:9px 22px;background:#2f3640;color:white;border-radius:8px;text-decoration:none;font-size:14px">← Back to Map</a>
+</div>
+
+{% elif error %}
+<p class="error-msg">{{ error }}</p>
+{% endif %}
+
+{% if stalls and not pending %}
+<p style="color:#636e72;font-size:14px;margin-bottom:16px">
+  {{ stalls|length }} stall(s) available — click one to select, then confirm booking.
+</p>
+
+<form method="POST" id="bookForm">
+<div class="stall-cards">
+{% for s in stalls %}
+<div class="stall-card" onclick="selectStall({{ s[0] }}, this)">
+    {% if s[3] %}
+    <img src="/static/images/stalls/{{ s[3] }}" alt="{{ s[1] }}"
+         style="width:100%;height:60px;object-fit:cover;border-radius:6px;margin-bottom:6px">
+    {% endif %}
+    <div style="font-size:15px;font-weight:bold">S{{ s[0] }}</div>
+    <div style="font-size:12px;margin-top:3px">{{ s[1] }}</div>
+    <div style="font-size:11px;opacity:0.85;margin-top:2px">{{ s[2] }}</div>
+</div>
+{% endfor %}
+</div>
+
+<input type="hidden" name="stall_id" id="selectedStallId">
+<br>
+<button type="submit" class="book-btn" id="bookBtn" disabled>
+  Select a stall to continue
+</button>
+</form>
+
+{% else %}
+{% if not pending %}
+<p style="color:#636e72;margin:20px 0">
+  Currently all stalls are booked. Please check back later.
+</p>
+{% endif %}
+{% endif %}
+
+<br>
+<a href="/">← Back to Map</a>
+</div>
+
+<script>
+function selectStall(id, el) {
+    document.querySelectorAll(".stall-card").forEach(c => c.classList.remove("selected"))
+    el.classList.add("selected")
+    document.getElementById("selectedStallId").value = id
+    let btn = document.getElementById("bookBtn")
+    btn.disabled = false
+    btn.textContent = "Book Stall S" + id
+}
+</script>
+</body>
+</html>

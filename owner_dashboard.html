@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Owner Dashboard - Fusion Fest 2026</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<style>
+.dashboard-box{
+width:520px;margin:60px auto;padding:30px;
+background:white;border-radius:12px;
+box-shadow:0 5px 20px rgba(0,0,0,0.15);text-align:left;
+}
+.dashboard-box h2{text-align:center;margin-bottom:20px;}
+.dashboard-box input,.dashboard-box textarea{
+width:100%;padding:10px;margin-bottom:15px;
+border-radius:6px;border:1px solid #ccc;box-sizing:border-box;
+}
+.dashboard-box button{
+background:#4CAF50;color:white;padding:10px 20px;
+border:none;border-radius:6px;cursor:pointer;font-weight:bold;
+}
+.dashboard-box button:hover{background:#45a049;}
+.stall-meta{
+background:#f5f5f5;border-radius:8px;padding:12px;margin-bottom:18px;
+}
+.stall-meta p{margin:4px 0;color:#2d3436;}
+.current-image img{width:200px;border-radius:8px;margin-top:10px;}
+.top-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.logout-link{color:#e57373;font-size:14px;text-decoration:none;}
+.logout-link:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="dashboard-box">
+<div class="top-actions">
+<h2 style="margin:0">Owner Dashboard</h2>
+<a href="/owner/logout" class="logout-link">Logout</a>
+</div>
+
+<div class="stall-meta">
+<p><strong>Stall:</strong> S{{ stall[0] }} — {{ stall[1] }}</p>
+<p><strong>Category:</strong> {{ stall[2] }}</p>
+<p><strong>Status:</strong> {{ stall[3] }}</p>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+
+<label>Description</label>
+<textarea name="description" rows="3">{{ stall[4] or '' }}</textarea>
+
+<label>Offers</label>
+<textarea name="offers" rows="2">{{ stall[5] or '' }}</textarea>
+
+<label>Upload Stall Image</label>
+<input type="file" name="image" accept="image/*">
+
+<div class="current-image">
+{% if stall[6] %}
+<p><strong>Current Image:</strong></p>
+<img src="/static/images/stalls/{{ stall[6] }}">
+{% endif %}
+</div>
+
+<br>
+<button type="submit">Update Stall</button>
+</form>
+
+<br>
+<a href="/">← Back to Map</a>
+</div>
+
+</body>
+</html>

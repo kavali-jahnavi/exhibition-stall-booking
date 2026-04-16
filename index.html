@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fusion Fest 2026</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<!-- TOP NAV -->
+<div class="top-nav">
+<a href="/owner/login" class="login-btn">Owner Login</a>
+<a href="/admin/login" class="login-btn">Admin Login</a>
+</div>
+
+<h1>Fusion Fest 2026</h1>
+<p>Explore • Food • Games • Fashion • Arts</p>
+
+<!-- SEARCH BAR -->
+<div class="search-box">
+<input type="text" id="stallSearch" placeholder="Search Stall" oninput="searchStalls()">
+<select id="categoryFilter" onchange="searchStalls()">
+<option value="all">All Categories</option>
+<option value="food">Food</option>
+<option value="games">Games</option>
+<option value="fashion">Fashion</option>
+<option value="art">Art / Arts</option>
+</select>
+<button onclick="searchStalls()">Search</button>
+<button onclick="resetSearch()">Reset</button>
+</div>
+<div id="searchEmptyMsg" style="display:none;margin:8px auto;color:#e57373;font-size:14px;font-weight:bold">
+😕 No stalls found. Try another search.
+</div>
+
+<div class="gate-selector">
+<label>Select Entry Gate:</label>
+<select id="entryGate">
+<option value="north">North Gate</option>
+<option value="west">West Gate</option>
+<option value="east">East Gate</option>
+<option value="south">South Gate</option>
+</select>
+<button id="resetNavBtn" class="reset-nav-btn" onclick="resetNavigation()" disabled>✕ Reset</button>
+<label class="toggle-label">
+<input type="checkbox" id="activeOnlyToggle" onchange="toggleActiveOnly()">
+<span class="toggle-track"><span class="toggle-thumb"></span></span>
+Show active only
+</label>
+</div>
+
+<!-- ROUTE INFO BAR -->
+<div id="navLoadingBar" class="nav-loading" style="display:none">🔍 Finding best route...</div>
+<div id="routeInfoBar" class="route-info-bar" style="display:none"></div>
+
+<!-- MAP AREA -->
+<div class="map-container">
+
+<div class="gate north" id="northGate">North Gate</div>
+<div class="gate west" id="westGate">West Gate</div>
+<div class="gate east" id="eastGate">East Gate</div>
+<div class="gate south" id="southGate">South Gate</div>
+
+<div id="pathContainer"></div>
+
+<div class="aisle-label" id="walkway">Main Walkway</div>
+
+<!-- STALL GRID -->
+<div class="stall-grid">
+
+{% for stall in stalls %}
+<div
+class="stall
+{% if stall[3]|lower == 'available' or stall[3]|lower == 'open' %}available
+{% elif stall[3]|lower == 'booked' %}booked
+{% elif stall[3]|lower == 'closed' %}closed
+{% elif stall[3]|lower == 'maintenance' %}maintenance
+{% endif %}"
+id="stall{{ stall[0] }}"
+data-name="{{ stall[1] }}"
+data-category="{{ stall[2] }}"
+data-status="{{ stall[3] }}"
+onclick="handleStallClick(event, {{ stall[0] }})"
+onmousemove="showPopup(event,'{{ stall[1] }}','{{ stall[2] }}','{{ stall[3] }}','{{ stall[6] }}')"
+onmouseleave="hidePopup()"
+>
+S{{ stall[0] }}
+</div>
+{% endfor %}
+
+</div>
+</div>
+
+<!-- POPUP (hover) -->
+<div id="stallPopup" class="popup"></div>
+
+<!-- STALL MODAL -->
+<div id="stallModal" class="modal-overlay" onclick="closeModal(event)">
+<div class="modal-box">
+<button class="modal-close" onclick="closeModalBtn()">✕</button>
+<div id="modalContent"></div>
+</div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+<span><span class="legend-box booked"></span>Active (Booked)</span>
+<span><span class="legend-box available"></span>Available</span>
+<span><span class="legend-box closed"></span>Closed</span>
+<span><span class="legend-box maintenance"></span>Maintenance</span>
+</div>
+
+<script src="/static/js/script.js"></script>
+
+<!-- BACK TO TOP -->
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+window.addEventListener("scroll", () => {
+    document.getElementById("backToTop").style.display = window.scrollY > 300 ? "block" : "none"
+})
+</script>
+</body>
+</html>

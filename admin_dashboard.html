@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard - Fusion Fest 2026</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<style>
+body{font-family:Arial;text-align:center;background:#faf7f2;}
+h1{margin-top:30px;}
+table{margin:auto;border-collapse:collapse;width:90%;}
+th,td{padding:10px 12px;border:1px solid #ddd;text-align:center;}
+th{background:#2f3640;color:white;}
+tr:nth-child(even){background:#f9f9f9;}
+.edit-btn{background:#4CAF50;color:white;padding:6px 12px;text-decoration:none;border-radius:4px;font-size:13px;}
+.edit-btn:hover{background:#45a049;}
+.admin-top{display:flex;justify-content:space-between;align-items:center;max-width:90%;margin:0 auto 10px;}
+.logout-link{color:#e57373;text-decoration:none;font-size:14px;}
+.logout-link:hover{text-decoration:underline;}
+.stats{display:flex;gap:20px;justify-content:center;margin:16px 0;}
+.stat-card{background:white;border-radius:10px;padding:14px 24px;box-shadow:0 3px 10px rgba(0,0,0,0.08);}
+.stat-card span{font-size:26px;font-weight:bold;display:block;}
+.stat-card label{font-size:12px;color:#636e72;}
+.pending-section{max-width:90%;margin:0 auto 28px;background:#fffbeb;border:1.5px solid #fbbf24;border-radius:10px;padding:20px 24px;}
+.pending-badge{display:inline-block;background:#ef4444;color:white;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;}
+.approve-btn{background:#22c55e;color:white;padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-size:13px;margin-right:4px;}
+.approve-btn:hover{background:#16a34a;}
+.reject-btn{background:#ef4444;color:white;padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-size:13px;}
+.reject-btn:hover{background:#dc2626;}
+</style>
+</head>
+<body>
+
+<div class="admin-top">
+<h1 style="margin:0">Admin Dashboard</h1>
+<a href="/admin/logout" class="logout-link">Logout</a>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+<div class="stat-card"><span>{{ total }}</span><label>Total</label></div>
+<div class="stat-card" style="color:#6abf69"><span>{{ available }}</span><label>Available</label></div>
+<div class="stat-card" style="color:#e57373"><span>{{ booked }}</span><label>Booked</label></div>
+<div class="stat-card" style="color:#ffb74d"><span>{{ closed }}</span><label>Closed</label></div>
+</div>
+
+<!-- SEARCH & FILTER -->
+<form method="GET" action="/admin/dashboard" class="admin-search-bar">
+<input type="text" name="search" placeholder="Search by name or ID" value="{{ search }}">
+<select name="category">
+<option value="all" {% if category=='all' %}selected{% endif %}>All Categories</option>
+<option value="Food" {% if category=='Food' %}selected{% endif %}>Food</option>
+<option value="Games" {% if category=='Games' %}selected{% endif %}>Games</option>
+<option value="Fashion" {% if category=='Fashion' %}selected{% endif %}>Fashion</option>
+<option value="Arts" {% if category=='Arts' %}selected{% endif %}>Arts</option>
+</select>
+<select name="status">
+<option value="all" {% if status_filter=='all' %}selected{% endif %}>All Statuses</option>
+<option value="available" {% if status_filter=='available' %}selected{% endif %}>Available</option>
+<option value="booked" {% if status_filter=='booked' %}selected{% endif %}>Booked</option>
+<option value="closed" {% if status_filter=='closed' %}selected{% endif %}>Closed</option>
+<option value="maintenance" {% if status_filter=='maintenance' %}selected{% endif %}>Maintenance</option>
+</select>
+<button type="submit">Filter</button>
+<a href="/admin/dashboard" style="padding:8px 14px;background:#636e72;color:white;border-radius:6px;text-decoration:none;font-size:14px;">Reset</a>
+</form>
+
+<p>Showing {{ stalls|length }} stall(s)</p>
+
+<!-- PENDING BOOKING REQUESTS -->
+{% if pending_requests %}
+<div class="pending-section">
+  <h2 style="margin-bottom:12px;font-size:18px;color:#2f3640">
+    🕐 Pending Booking Requests
+    <span class="pending-badge">{{ pending_requests|length }}</span>
+  </h2>
+  <table>
+    <tr>
+      <th>#</th>
+      <th>Owner Name</th>
+      <th>Email</th>
+      <th>Stall</th>
+      <th>Category</th>
+      <th>Actions</th>
+    </tr>
+    {% for r in pending_requests %}
+    <tr id="req-row-{{ r[0] }}">
+      <td>{{ r[0] }}</td>
+      <td>{{ r[1] }}</td>
+      <td>{{ r[2] }}</td>
+      <td>S{{ r[3] }} — {{ r[4] }}</td>
+      <td>{{ r[5] }}</td>
+      <td>
+        <button class="approve-btn" onclick="approveRequest({{ r[0] }})">✓ Approve</button>
+        <button class="reject-btn"  onclick="rejectRequest({{ r[0] }})">✗ Reject</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<table>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Category</th>
+<th>Status</th>
+<th>Owner</th>
+<th>Change Status</th>
+<th>Actions</th>
+</tr>
+
+{% for stall in stalls %}
+<tr id="row-{{ stall[0] }}">
+<td>S{{ stall[0] }}</td>
+<td>{{ stall[1] }}</td>
+<td>{{ stall[2] }}</td>
+<td id="status-{{ stall[0] }}">{{ stall[3] }}</td>
+<td>{{ stall[8] if stall[8] else '—' }}</td>
+<td>
+<div class="status-cell">
+<select class="status-select" id="sel-{{ stall[0] }}">
+<option value="available" {% if stall[3]|lower=='available' %}selected{% endif %}>Available</option>
+<option value="booked" {% if stall[3]|lower=='booked' %}selected{% endif %}>Booked</option>
+<option value="closed" {% if stall[3]|lower=='closed' %}selected{% endif %}>Closed</option>
+<option value="maintenance" {% if stall[3]|lower=='maintenance' %}selected{% endif %}>Maintenance</option>
+</select>
+<button class="save-status-btn" onclick="changeStatus({{ stall[0] }})">Save</button>
+</div>
+</td>
+<td id="actions-{{ stall[0] }}">
+<a class="edit-btn" href="/admin/edit_stall/{{ stall[0] }}">Edit</a>
+{% if stall[8] or stall[3]|lower == 'booked' %}
+<button class="remove-btn" onclick="removeBooking({{ stall[0] }})">Remove Booking</button>
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</table>
+
+<br><br>
+<a href="/">← Back to Exhibition Map</a>
+<br><br>
+
+<script>
+function changeStatus(stallId) {
+    let newStatus = document.getElementById("sel-" + stallId).value
+    let formData = new FormData()
+    formData.append("status", newStatus)
+
+    fetch("/admin/change_status/" + stallId, {method:"POST", body:formData})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("status-" + stallId).textContent = data.status
+
+                // Update Remove Booking button visibility
+                let actionsCell = document.getElementById("actions-" + stallId)
+                let existingRemoveBtn = actionsCell.querySelector(".remove-btn")
+                let showRemove = data.status === "booked" || data.has_owner
+
+                if (showRemove && !existingRemoveBtn) {
+                    let btn = document.createElement("button")
+                    btn.className = "remove-btn"
+                    btn.textContent = "Remove Booking"
+                    btn.onclick = () => removeBooking(stallId)
+                    actionsCell.appendChild(btn)
+                } else if (!showRemove && existingRemoveBtn) {
+                    existingRemoveBtn.remove()
+                }
+
+                showToast("Status updated to " + data.status)
+            }
+        })
+        .catch(() => showToast("Error updating status", true))
+}
+
+function approveRequest(reqId) {
+    if (!confirm("Approve this booking request?")) return
+    fetch("/admin/approve_request/" + reqId, {method:"POST"})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) { location.reload() }
+            else showToast(data.error || "Error", true)
+        })
+}
+
+function rejectRequest(reqId) {
+    if (!confirm("Reject this booking request?")) return
+    fetch("/admin/reject_request/" + reqId, {method:"POST"})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                let row = document.getElementById("req-row-" + reqId)
+                if (row) row.remove()
+                showToast("Request rejected")
+            }
+        })
+}
+
+function removeBooking(stallId) {
+    if (!confirm("Remove booking for stall S" + stallId + "? This will set it back to Available.")) return
+
+    fetch("/admin/remove_booking/" + stallId, {method:"POST"})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                location.reload()
+            }
+        })
+        .catch(() => showToast("Error removing booking", true))
+}
+
+function showToast(msg, isError=false) {
+    let t = document.createElement("div")
+    t.textContent = msg
+    t.style.cssText = `position:fixed;bottom:30px;right:30px;background:${isError?"#e57373":"#4CAF50"};color:white;padding:12px 20px;border-radius:8px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2)`
+    document.body.appendChild(t)
+    setTimeout(() => t.remove(), 2500)
+}
+</script>
+
+</body>
+</html>

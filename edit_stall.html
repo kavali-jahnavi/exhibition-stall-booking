@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Stall</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    font-family:'Segoe UI', Arial, sans-serif;
+    background:#f1f5f9;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+
+  .card{
+    background:#fff;
+    border-radius:16px;
+    box-shadow:0 4px 24px rgba(0,0,0,0.10);
+    padding:40px 44px;
+    width:100%;
+    max-width:480px;
+  }
+
+  .card-header{
+    margin-bottom:28px;
+  }
+
+  .card-header h1{
+    font-size:22px;
+    font-weight:700;
+    color:#1e293b;
+  }
+
+  .card-header p{
+    font-size:13px;
+    color:#94a3b8;
+    margin-top:4px;
+  }
+
+  .form-group{
+    margin-bottom:20px;
+  }
+
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:#334155;
+    margin-bottom:6px;
+  }
+
+  input[type="text"],
+  select{
+    width:100%;
+    padding:10px 14px;
+    border:1.5px solid #e2e8f0;
+    border-radius:8px;
+    font-size:14px;
+    color:#1e293b;
+    background:#f8fafc;
+    outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input[type="text"]:focus,
+  select:focus{
+    border-color:#3b82f6;
+    box-shadow:0 0 0 3px rgba(59,130,246,0.12);
+    background:#fff;
+  }
+
+  .btn-row{
+    display:flex;
+    gap:12px;
+    margin-top:28px;
+    flex-wrap:wrap;
+  }
+
+  .btn-primary{
+    flex:1;
+    padding:11px 20px;
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.2s, transform 0.1s;
+  }
+
+  .btn-primary:hover{
+    background:#1d4ed8;
+    transform:translateY(-1px);
+  }
+
+  .btn-secondary{
+    flex:1;
+    padding:11px 20px;
+    background:#f1f5f9;
+    color:#475569;
+    border:1.5px solid #e2e8f0;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    text-align:center;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.2s;
+  }
+
+  .btn-secondary:hover{
+    background:#e2e8f0;
+  }
+
+  @media(max-width:520px){
+    .card{ padding:28px 20px; }
+    .btn-row{ flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <h1>Edit Stall {{ stall[0] }}</h1>
+    <p>Update the stall details below</p>
+  </div>
+
+  <form method="POST">
+
+    <div class="form-group">
+      <label for="name">Stall Name</label>
+      <input type="text" id="name" name="name" value="{{ stall[1] }}">
+    </div>
+
+    <div class="form-group">
+      <label for="category">Category</label>
+      <input type="text" id="category" name="category" value="{{ stall[2] }}">
+    </div>
+
+    <div class="form-group">
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="available" {% if stall[3]=='available' %}selected{% endif %}>Available</option>
+        <option value="booked"    {% if stall[3]=='booked'    %}selected{% endif %}>Booked</option>
+        <option value="closed"    {% if stall[3]=='closed'    %}selected{% endif %}>Closed</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button type="submit" class="btn-primary">Update Stall</button>
+      <a href="/admin/dashboard" class="btn-secondary">Back to Dashboard</a>
+    </div>
+
+  </form>
+</div>
+
+</body>
+</html>
